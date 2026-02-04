@@ -1,15 +1,14 @@
-CREATE TABLE suppliers (
+CREATE TABLE IF NOT EXISTS suppliers (
                            id BIGSERIAL PRIMARY KEY,
                            code VARCHAR(20) NOT NULL UNIQUE,
-                           name VARCHAR(20) NOT NULL,
-                           surname VARCHAR(30) NOT NULL,
-                           phone VARCHAR(12) NOT NULL,
+                           company_name VARCHAR(30) NOT NULL,
+                           phone_number VARCHAR(12) NOT NULL,
                            email VARCHAR(30),
                            created_at TIMESTAMP,
                            updated_at TIMESTAMP
 );
 
-CREATE TABLE products (
+CREATE TABLE IF NOT EXISTS products (
                           id BIGSERIAL PRIMARY KEY,
                           name VARCHAR(20) NOT NULL,
                           type VARCHAR(30) NOT NULL,
@@ -21,7 +20,7 @@ CREATE TABLE products (
                                   REFERENCES suppliers(id)
 );
 
-CREATE TABLE delivery (
+CREATE TABLE IF NOT EXISTS delivery (
                           id BIGSERIAL PRIMARY KEY,
                           delivery_date_time TIMESTAMP NOT NULL,
                           supplier_id BIGINT NOT NULL,
@@ -34,7 +33,7 @@ CREATE TABLE delivery (
                                   REFERENCES suppliers(id)
 );
 
-CREATE TABLE delivery_items (
+CREATE TABLE IF NOT EXISTS delivery_items (
                                 id BIGSERIAL PRIMARY KEY,
                                 product_id BIGINT NOT NULL,
                                 delivery_id BIGINT NOT NULL,
