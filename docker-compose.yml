@@ -1,0 +1,28 @@
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: supply_db
+    ports:
+      - "5431:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d highload_db"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  app:
+    build:
+      context: .
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/supply_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
