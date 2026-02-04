@@ -1,5 +1,6 @@
 package com.dazavv.supply.supplymanagementservice.supplier.entity;
 
+import com.dazavv.supply.supplymanagementservice.auth.entity.AuthUser;
 import com.dazavv.supply.supplymanagementservice.delivery.entity.DeliveryEntity;
 import com.dazavv.supply.supplymanagementservice.product.entity.ProductEntity;
 import jakarta.persistence.*;
@@ -27,22 +28,21 @@ public class SupplierEntity {
     private String code; // Внутренний код поставщика (например SUP-001)
 
     @NotBlank
-    @Size(max = 20)
-    private String name;
-
-    @NotBlank
     @Size(max = 30)
-    private String surname;
+    private String companyName;
 
-    @NotBlank
     @Size(max = 12)
-    private String phone;
+    private String phoneNumber;
 
     @Size(max = 30)
     private String email;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+    @OneToOne
+    @JoinColumn(name = "auth_user_id")
+    private AuthUser authUser;
 
     @OneToMany(mappedBy = "supplier")
     private List<ProductEntity> products;
