@@ -1,0 +1,8 @@
+package com.dazavv.supply.supplymanagementservice.auth.exception;
+
+public class AuthException extends RuntimeException {
+
+    public AuthException(String msg) {
+        super(msg);
+    }
+}
