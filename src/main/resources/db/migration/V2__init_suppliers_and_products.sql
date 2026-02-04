@@ -1,4 +1,4 @@
-INSERT INTO suppliers (code, name, surname, phone, email, created_at)
+INSERT INTO suppliers (code, name, surname, phone_number, email, created_at)
 VALUES
     ('SUP-001', 'Ivan', 'Petrov', '+70000000001', 'ivan@sup1.ru', now()),
     ('SUP-002', 'Petr', 'Sidorov', '+70000000002', 'petr@sup2.ru', now()),
