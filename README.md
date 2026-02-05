@@ -71,7 +71,7 @@ users.roles=ADMIN,SUPPLIER,SUPPLIER,SUPPLIER
 3. Сборка и запуск через Docker Compose:
 
 ```bash
-docker-compose up
+docker-compose up --build
 ```
 
 ---
