@@ -20,14 +20,16 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class DeliveryEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotNull
+    @Column(name = "delivery_date_time", nullable = false)
     private LocalDateTime deliveryDateTime;
 
-    @ManyToOne
+    @ManyToOne(optional = false)
     @JoinColumn(name = "supplier_id", nullable = false)
     private SupplierEntity supplier;
 
@@ -36,12 +38,17 @@ public class DeliveryEntity {
 
     @NotBlank
     @Size(max = 255)
+    @Column(name = "delivery_address", nullable = false, length = 255)
     private String deliveryAddress;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "status", length = 20)
     private DeliveryStatus status;
+
+    @Column(name = "total_amount", precision = 12, scale = 2)
     private BigDecimal totalAmount;
 
     @Size(max = 255)
+    @Column(name = "comment", length = 255)
     private String comment;
 }

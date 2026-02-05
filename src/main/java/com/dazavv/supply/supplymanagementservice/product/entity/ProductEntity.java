@@ -25,19 +25,25 @@ public class ProductEntity {
 
     @NotBlank
     @Size(max = 20)
+    @Column(name = "name", nullable = false, length = 20)
     private String name;
 
     @NotBlank
     @Size(max = 30)
+    @Column(name = "type", nullable = false, length = 30)
     private String type;
 
     @NotNull
+    @Column(name = "price", nullable = false, precision = 10, scale = 2)
     private BigDecimal price;
 
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-
-    @ManyToOne
+    @ManyToOne(optional = false)
     @JoinColumn(name = "supplier_id", nullable = false)
     private SupplierEntity supplier;
+
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 }

@@ -19,34 +19,38 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SupplierEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotBlank
     @Size(max = 20)
-    @Column(name = "code", nullable = false, unique = true)
+    @Column(name = "code", nullable = false, unique = true, length = 20)
     private String code;
 
     @NotBlank
     @Size(max = 30)
-    @Column(name = "company_name", nullable = false)
+    @Column(name = "company_name", nullable = false, length = 30)
     private String companyName;
 
     @NotBlank
     @Size(max = 12)
-    @Column(name = "phone_number", nullable = false)
+    @Column(name = "phone_number", nullable = false, length = 12)
     private String phoneNumber;
 
     @NotBlank
     @Size(max = 30)
-    @Column(name = "email", nullable = false)
+    @Column(name = "email", nullable = false, length = 30)
     private String email;
 
+    @Column(name = "created_at")
     private LocalDateTime createdAt;
+
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @OneToOne
+    @OneToOne(optional = false)
     @JoinColumn(name = "auth_user_id", nullable = false)
     private User user;
 

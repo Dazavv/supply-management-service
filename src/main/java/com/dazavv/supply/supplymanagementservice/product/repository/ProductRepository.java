@@ -15,4 +15,6 @@ public interface ProductRepository extends JpaRepository<ProductEntity, Long> {
     boolean existsByNameAndTypeAndPriceAndSupplier(String name, String type, BigDecimal price, SupplierEntity supplier);
 
     boolean existsByNameAndTypeAndSupplier(String name, String type, SupplierEntity supplier);
+
+    void deleteAllBySupplier(SupplierEntity supplier);
 }

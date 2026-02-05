@@ -20,17 +20,20 @@ public class DeliveryItemEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(optional = false)
     @JoinColumn(name = "product_id", nullable = false)
     private ProductEntity product;
 
     @NotNull
+    @Column(name = "weight", nullable = false, precision = 10, scale = 2)
     private BigDecimal weight;
 
     @NotNull
+    @Column(name = "price", nullable = false, precision = 10, scale = 2)
     private BigDecimal price;
 
-    @ManyToOne
+    @ManyToOne(optional = false)
     @JoinColumn(name = "delivery_id", nullable = false)
     private DeliveryEntity delivery;
 }
+

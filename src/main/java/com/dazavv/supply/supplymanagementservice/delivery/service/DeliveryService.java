@@ -34,7 +34,6 @@ public class DeliveryService {
     private final SupplierService supplierService;
     private final ProductService productService;
     private final DeliveryMapper deliveryMapper;
-    private final DeliveryItemMapper deliveryItemMapper;
 
     @Transactional
     public DeliveryResponse createDelivery(User currentUser,

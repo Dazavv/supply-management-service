@@ -36,4 +36,5 @@ public interface DeliveryRepository extends JpaRepository<DeliveryEntity, Long> 
     );
 
 
+    void deleteAllBySupplier(SupplierEntity supplier);
 }

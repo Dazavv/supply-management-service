@@ -3,6 +3,8 @@ package com.dazavv.supply.supplymanagementservice.supplier.service;
 import com.dazavv.supply.supplymanagementservice.auth.entity.User;
 import com.dazavv.supply.supplymanagementservice.auth.enums.Role;
 import com.dazavv.supply.supplymanagementservice.auth.service.UserService;
+import com.dazavv.supply.supplymanagementservice.delivery.repository.DeliveryRepository;
+import com.dazavv.supply.supplymanagementservice.product.repository.ProductRepository;
 import com.dazavv.supply.supplymanagementservice.supplier.exception.*;
 import com.dazavv.supply.supplymanagementservice.supplier.dto.responses.SupplierResponse;
 import com.dazavv.supply.supplymanagementservice.supplier.entity.SupplierEntity;
@@ -23,6 +25,8 @@ public class SupplierService {
     private final SupplierRepository supplierRepository;
     private final SupplierMapper supplierMapper;
     private final UserService userService;
+    private final ProductRepository productRepository;
+    private final DeliveryRepository deliveryRepository;
 
     @Transactional
     public SupplierResponse createSupplier(
@@ -127,6 +131,10 @@ public class SupplierService {
         if (!supplierRepository.existsById(id)) {
             throw new SupplierNotFoundException("Supplier with id = " + id + " not found");
         }
+        SupplierEntity supplier = getSupplierById(id);
+
+        deliveryRepository.deleteAllBySupplier(supplier);
+        productRepository.deleteAllBySupplier(supplier);
 
         supplierRepository.deleteById(id);
     }
