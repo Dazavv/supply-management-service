@@ -25,23 +25,29 @@ public class SupplierEntity {
 
     @NotBlank
     @Size(max = 20)
-    private String code; // Внутренний код поставщика (например SUP-001)
+    @Column(name = "code", nullable = false, unique = true)
+    private String code;
 
     @NotBlank
     @Size(max = 30)
+    @Column(name = "company_name", nullable = false)
     private String companyName;
 
+    @NotBlank
     @Size(max = 12)
+    @Column(name = "phone_number", nullable = false)
     private String phoneNumber;
 
+    @NotBlank
     @Size(max = 30)
+    @Column(name = "email", nullable = false)
     private String email;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
     @OneToOne
-    @JoinColumn(name = "auth_user_id")
+    @JoinColumn(name = "auth_user_id", nullable = false)
     private User user;
 
     @OneToMany(mappedBy = "supplier")

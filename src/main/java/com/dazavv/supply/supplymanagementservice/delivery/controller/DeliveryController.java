@@ -44,7 +44,7 @@ public class DeliveryController {
     }
 
     @PutMapping("/{deliveryId}")
-    @PreAuthorize("hasAnyAuthority('SUPPLIER', 'ADMIN')")
+    @PreAuthorize("hasAnyAuthority('SUPPLIER')")
     public ResponseEntity<DeliveryResponse> updateDelivery(
             @PathVariable Long deliveryId,
             @Valid @RequestBody UpdateDeliveryRequest request,

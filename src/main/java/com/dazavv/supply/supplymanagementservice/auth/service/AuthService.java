@@ -4,12 +4,10 @@ import com.dazavv.supply.supplymanagementservice.auth.dto.response.JwtResponse;
 import com.dazavv.supply.supplymanagementservice.auth.entity.User;
 import com.dazavv.supply.supplymanagementservice.auth.enums.Role;
 import com.dazavv.supply.supplymanagementservice.auth.exception.AuthException;
-import com.dazavv.supply.supplymanagementservice.auth.jwt.JwtAuthentication;
 import com.dazavv.supply.supplymanagementservice.auth.jwt.JwtProvider;
 import com.dazavv.supply.supplymanagementservice.supplier.service.SupplierService;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -102,12 +100,5 @@ public class AuthService {
             }
         }
         throw new AuthException("JWT was not valid");
-    }
-    public JwtAuthentication getAuthInfo() {
-        return (JwtAuthentication) SecurityContextHolder.getContext().getAuthentication();
-    }
-
-    public void deleteUserById(Long id) {
-        userService.deleteUserById(id);
     }
 }

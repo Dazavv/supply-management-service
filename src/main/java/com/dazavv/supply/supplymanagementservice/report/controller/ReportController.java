@@ -1,7 +1,8 @@
 package com.dazavv.supply.supplymanagementservice.report.controller;
 
 import com.dazavv.supply.supplymanagementservice.report.dto.requests.ReportRequest;
-import com.dazavv.supply.supplymanagementservice.report.dto.responses.SupplierReportResponse;
+import com.dazavv.supply.supplymanagementservice.report.dto.responses.DeliveryReportResponse;
+import com.dazavv.supply.supplymanagementservice.report.dto.responses.SupplierReportWithTotals;
 import com.dazavv.supply.supplymanagementservice.report.service.ReportService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,29 +20,34 @@ public class ReportController {
 
     @PostMapping("/deliveries")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<List<SupplierReportResponse>> getDeliveryReport(@Valid @RequestBody ReportRequest request) {
-        List<SupplierReportResponse> report = reportService.generateReport(
-                request.startDate(),
-                request.endDate(),
-                null,
-                null
+    public ResponseEntity<DeliveryReportResponse> getDeliveryReport(
+            @Valid @RequestBody ReportRequest request
+    ) {
+        return ResponseEntity.ok(
+                reportService.generateReport(
+                        request.startDate(),
+                        request.endDate(),
+                        null,
+                        null
+                )
         );
-        return ResponseEntity.ok(report);
     }
+
 
     @PostMapping("/deliveries/supplier/{supplierId}")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<List<SupplierReportResponse>> getDeliveryReportBySupplier(
+    public ResponseEntity<DeliveryReportResponse> getDeliveryReportBySupplier(
             @PathVariable Long supplierId,
-            @Valid @RequestBody ReportRequest request) {
-
-        List<SupplierReportResponse> report = reportService.generateReport(
-                request.startDate(),
-                request.endDate(),
-                supplierId,
-                null
+            @Valid @RequestBody ReportRequest request
+    ) {
+        return ResponseEntity.ok(
+                reportService.generateReport(
+                        request.startDate(),
+                        request.endDate(),
+                        supplierId,
+                        null
+                )
         );
-        return ResponseEntity.ok(report);
     }
 
     @PostMapping("/deliveries/export/csv")

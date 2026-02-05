@@ -17,21 +17,23 @@ public interface DeliveryRepository extends JpaRepository<DeliveryEntity, Long> 
 
     @Query("""
     SELECT new com.dazavv.supply.supplymanagementservice.report.dto.responses.ProductReportResponse(
-        d.supplier.id,
+        s.id,
         p.name,
         p.type,
-        SUM(i.weight),
-        SUM(i.price)
+        CAST(SUM(di.weight) AS bigdecimal),
+        CAST(SUM(di.price * di.weight) AS bigdecimal)
     )
-    FROM DeliveryItemEntity i
-    JOIN i.delivery d
-    JOIN i.product p
+    FROM DeliveryItemEntity di
+    JOIN di.product p
+    JOIN di.delivery d
+    JOIN d.supplier s
     WHERE d.deliveryDateTime BETWEEN :start AND :end
-    GROUP BY d.supplier.id, p.name, p.type
+    GROUP BY s.id, p.name, p.type
     """)
     List<ProductReportResponse> aggregateProductsBySupplier(
             @Param("start") LocalDateTime start,
             @Param("end") LocalDateTime end
     );
+
 
 }

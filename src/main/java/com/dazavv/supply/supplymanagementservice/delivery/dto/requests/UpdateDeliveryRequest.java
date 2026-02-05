@@ -1,10 +1,7 @@
 package com.dazavv.supply.supplymanagementservice.delivery.dto.requests;
 
 import com.dazavv.supply.supplymanagementservice.delivery.utils.DeliveryStatus;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.FutureOrPresent;
-import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Size;
 
 import java.time.LocalDateTime;

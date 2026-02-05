@@ -6,6 +6,9 @@ import com.dazavv.supply.supplymanagementservice.delivery.dto.requests.DeliveryI
 import com.dazavv.supply.supplymanagementservice.delivery.dto.responses.DeliveryResponse;
 import com.dazavv.supply.supplymanagementservice.delivery.entity.DeliveryEntity;
 import com.dazavv.supply.supplymanagementservice.delivery.entity.DeliveryItemEntity;
+import com.dazavv.supply.supplymanagementservice.delivery.exception.DeliveryAccessDeniedException;
+import com.dazavv.supply.supplymanagementservice.delivery.exception.DeliveryNotFoundException;
+import com.dazavv.supply.supplymanagementservice.delivery.mapper.DeliveryItemMapper;
 import com.dazavv.supply.supplymanagementservice.delivery.mapper.DeliveryMapper;
 import com.dazavv.supply.supplymanagementservice.delivery.repository.DeliveryRepository;
 import com.dazavv.supply.supplymanagementservice.delivery.utils.DeliveryStatus;
@@ -31,6 +34,7 @@ public class DeliveryService {
     private final SupplierService supplierService;
     private final ProductService productService;
     private final DeliveryMapper deliveryMapper;
+    private final DeliveryItemMapper deliveryItemMapper;
 
     @Transactional
     public DeliveryResponse createDelivery(User currentUser,
@@ -38,7 +42,6 @@ public class DeliveryService {
                                            String deliveryAddress,
                                            List<DeliveryItemRequest> items,
                                            String comment) {
-
         SupplierEntity supplier = supplierService.getSupplierByUser(currentUser);
 
         DeliveryEntity delivery = new DeliveryEntity();
@@ -66,9 +69,7 @@ public class DeliveryService {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         delivery.setTotalAmount(totalAmount);
-
         deliveryRepository.save(delivery);
-
         return deliveryMapper.toDeliveryDto(delivery);
     }
 
@@ -80,20 +81,20 @@ public class DeliveryService {
                                            List<DeliveryItemRequest> items,
                                            DeliveryStatus status,
                                            String comment) {
-
         DeliveryEntity delivery = deliveryRepository.findById(deliveryId)
-                .orElseThrow(() -> new IllegalArgumentException("Delivery not found with id: " + deliveryId));
+                .orElseThrow(() ->
+                        new DeliveryNotFoundException(
+                                "Delivery not found with id: " + deliveryId
+                        ));
 
-        if (currentUser.getRoles().contains(Role.SUPPLIER)
-                && !delivery.getSupplier().getUser().getId().equals(currentUser.getId())) {
-            throw new IllegalStateException("Cannot update delivery of another supplier");
+        if (!delivery.getSupplier().getUser().getId().equals(currentUser.getId())) {
+            throw new DeliveryAccessDeniedException("Cannot update delivery of another supplier");
         }
 
         if (deliveryDateTime != null) delivery.setDeliveryDateTime(deliveryDateTime);
-        if (comment != null) delivery.setComment(comment);
+        if (comment != null && !comment.isBlank()) delivery.setComment(comment);
         if (status != null) delivery.setStatus(status);
-        if (deliveryAddress != null) delivery.setDeliveryAddress(deliveryAddress);
-
+        if (deliveryAddress != null && !deliveryAddress.isBlank()) delivery.setDeliveryAddress(deliveryAddress);
         if (items != null && !items.isEmpty()) {
             delivery.getItems().clear();
 
@@ -123,17 +124,20 @@ public class DeliveryService {
 
     public DeliveryResponse getDeliveryById(User currentUser, Long deliveryId) {
         DeliveryEntity delivery = deliveryRepository.findById(deliveryId)
-                .orElseThrow(() -> new IllegalArgumentException("Delivery not found with id: " + deliveryId));
+                .orElseThrow(() ->
+                        new DeliveryNotFoundException(
+                                "Delivery not found with id: " + deliveryId
+                        ));
 
         if (currentUser.getRoles().contains(Role.SUPPLIER)
                 && !delivery.getSupplier().getUser().getId().equals(currentUser.getId())) {
-            throw new IllegalStateException("Cannot view delivery of another supplier");
+            throw new DeliveryAccessDeniedException("Cannot view delivery of another supplier");
         }
-
         return deliveryMapper.toDeliveryDto(delivery);
     }
 
     public List<DeliveryResponse> getDeliveries(User currentUser) {
+
         List<DeliveryEntity> deliveries;
 
         if (currentUser.getRoles().contains(Role.ADMIN)) {
@@ -148,18 +152,16 @@ public class DeliveryService {
 
     @Transactional
     public void deleteDelivery(User currentUser, Long deliveryId) {
-        DeliveryEntity delivery = deliveryRepository.findById(deliveryId)
-                .orElseThrow(() -> new IllegalArgumentException("Delivery not found with id: " + deliveryId));
+        DeliveryEntity delivery = deliveryRepository.findById(deliveryId).orElseThrow(() -> new DeliveryNotFoundException("Delivery not found with id: " + deliveryId));
 
-        if (currentUser.getRoles().contains(Role.SUPPLIER)
-                && !delivery.getSupplier().getUser().getId().equals(currentUser.getId())) {
-            throw new IllegalStateException("Cannot delete delivery of another supplier");
+        if (currentUser.getRoles().contains(Role.SUPPLIER) && !delivery.getSupplier().getUser().getId().equals(currentUser.getId())) {
+            throw new DeliveryAccessDeniedException("Cannot delete delivery of another supplier");
         }
-
         deliveryRepository.delete(delivery);
     }
 
-    public List<ProductReportResponse> findDeliveriesBetween(LocalDateTime start, LocalDateTime end) {
+    public List<ProductReportResponse> findDeliveriesBetween(LocalDateTime start,
+                                                             LocalDateTime end) {
         return deliveryRepository.aggregateProductsBySupplier(start, end);
     }
 }

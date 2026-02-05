@@ -38,10 +38,12 @@ public class User {
 
     @NotBlank
     @Size(max = 30)
+    @Column(name = "email", nullable = false)
     private String email;
 
     @NotBlank
     @Size(max = 12)
+    @Column(name = "phone_number", nullable = false)
     private String phoneNumber;
 
     @ElementCollection(fetch = FetchType.EAGER)
