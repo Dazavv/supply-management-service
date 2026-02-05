@@ -56,7 +56,6 @@ public class SupplierController {
                 );
     }
 
-    //TODO добавить возможность удалять самого сбея
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyAuthority('ADMIN')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
