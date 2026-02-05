@@ -1,8 +1,8 @@
 package com.dazavv.supply.supplymanagementservice.supplier.service;
 
-import com.dazavv.supply.supplymanagementservice.auth.entity.AuthUser;
+import com.dazavv.supply.supplymanagementservice.auth.entity.User;
 import com.dazavv.supply.supplymanagementservice.auth.enums.Role;
-import com.dazavv.supply.supplymanagementservice.auth.service.AuthUserService;
+import com.dazavv.supply.supplymanagementservice.auth.service.UserService;
 import com.dazavv.supply.supplymanagementservice.common.exception.SupplierNotFoundException;
 import com.dazavv.supply.supplymanagementservice.supplier.dto.responses.SupplierResponse;
 import com.dazavv.supply.supplymanagementservice.supplier.entity.SupplierEntity;
@@ -11,10 +11,11 @@ import com.dazavv.supply.supplymanagementservice.supplier.repository.SupplierRep
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -23,12 +24,7 @@ import java.util.Optional;
 public class SupplierService {
     private final SupplierRepository supplierRepository;
     private final SupplierMapper supplierMapper;
-    private final AuthUserService authUserService;
-
-    public List<SupplierResponse> getAllSuppliers() {
-        List<SupplierEntity> suppliers = supplierRepository.findAll();
-        return supplierMapper.toSupplierDtoList(suppliers);
-    }
+    private final UserService userService;
 
     @Transactional
     public SupplierResponse createSupplier(
@@ -38,7 +34,7 @@ public class SupplierService {
             String email,
             String phoneNumber
     ) {
-        AuthUser user = authUserService.getUserById(userId);
+        User user = userService.getUserById(userId);
 
         if (user.getRoles().contains(Role.SUPPLIER)) {
             throw new IllegalArgumentException("User is already a supplier");
@@ -61,10 +57,10 @@ public class SupplierService {
         supplier.setPhoneNumber(finalPhone);
         supplier.setCreatedAt(LocalDateTime.now());
         supplier.setUpdatedAt(LocalDateTime.now());
-        supplier.setAuthUser(user);
+        supplier.setUser(user);
 
         supplierRepository.save(supplier);
-        authUserService.addNewRole(userId, Role.SUPPLIER);
+        userService.addNewRole(userId, Role.SUPPLIER);
 
         return supplierMapper.toSupplierDto(supplier);
     }
@@ -86,19 +82,12 @@ public class SupplierService {
         if (email != null && !email.isBlank()) {
 
             if (!email.equals(supplier.getEmail())) {
-
-                boolean usedByOtherSupplier =
-                        supplierRepository.existsByEmailAndIdNot(email, supplierId);
-
-                boolean usedByUser =
-                        authUserService.checkExistedUserByEmail(email);
+                boolean usedByOtherSupplier = supplierRepository.existsByEmailAndIdNot(email, supplierId);
+                boolean usedByUser = userService.checkEmailUniqueness(email);
 
                 if (usedByOtherSupplier || usedByUser) {
-                    throw new IllegalArgumentException(
-                            "Email already used by another user or supplier"
-                    );
+                    throw new IllegalArgumentException("Email already used by another user or supplier");
                 }
-
                 supplier.setEmail(email);
             }
         }
@@ -106,27 +95,18 @@ public class SupplierService {
         if (phoneNumber != null && !phoneNumber.isBlank()) {
 
             if (!phoneNumber.equals(supplier.getPhoneNumber())) {
-
-                boolean usedByOtherSupplier =
-                        supplierRepository.existsByPhoneNumberAndIdNot(phoneNumber, supplierId);
-
-                boolean usedByUser =
-                        authUserService.checkExistedUserPhoneNumber(phoneNumber);
+                boolean usedByOtherSupplier = supplierRepository.existsByPhoneNumberAndIdNot(phoneNumber, supplierId);
+                boolean usedByUser = userService.checkPhoneUniqueness(phoneNumber);
 
                 if (usedByOtherSupplier || usedByUser) {
-                    throw new IllegalArgumentException(
-                            "Phone number already used by another user or supplier"
-                    );
+                    throw new IllegalArgumentException("Phone number already used by another user or supplier");
                 }
-
                 supplier.setPhoneNumber(phoneNumber);
             }
         }
 
         supplier.setUpdatedAt(LocalDateTime.now());
-
         supplierRepository.save(supplier);
-
         return supplierMapper.toSupplierDto(supplier);
     }
 
@@ -147,14 +127,14 @@ public class SupplierService {
         }
     }
 
-    private String resolveEmailForSupplier(AuthUser user, String email) {
+    private String resolveEmailForSupplier(User user, String email) {
 
         if (email == null || email.isBlank() || email.equals(user.getEmail())) {
             return user.getEmail();
         }
 
         boolean emailUsedBySupplier = supplierRepository.existsByEmail(email);
-        boolean emailUsedByUser = authUserService.checkExistedUserByEmail(email);
+        boolean emailUsedByUser = userService.checkEmailUniqueness(email);
 
         if (emailUsedBySupplier || emailUsedByUser) {
             throw new IllegalArgumentException("Email already used by another user or supplier");
@@ -162,14 +142,14 @@ public class SupplierService {
 
         return email;
     }
-    private String resolvePhoneForSupplier(AuthUser user, String phoneNumber) {
+    private String resolvePhoneForSupplier(User user, String phoneNumber) {
 
         if (phoneNumber == null || phoneNumber.isBlank()|| phoneNumber.equals(user.getPhoneNumber())) {
             return user.getPhoneNumber();
         }
 
         boolean phoneUsedBySupplier = supplierRepository.existsByPhoneNumber(phoneNumber);
-        boolean phoneUsedByUser = authUserService.checkExistedUserPhoneNumber(phoneNumber);
+        boolean phoneUsedByUser = userService.checkPhoneUniqueness(phoneNumber);
 
         if (phoneUsedBySupplier || phoneUsedByUser) {
             throw new IllegalArgumentException("Phone number already used by another user or supplier");
@@ -178,9 +158,13 @@ public class SupplierService {
         return phoneNumber;
     }
 
-    public SupplierEntity getSupplierByUserId(Long id) {
-        return supplierRepository.findByAuthUserId(id);
+    public SupplierEntity getSupplierByUser(User user) {
+        return supplierRepository.findByUserId(user.getId())
+                .orElseThrow(() -> new SupplierNotFoundException(
+                        "Supplier not found for user id: " + user.getId()
+                ));
     }
+
 
     public SupplierEntity getSupplierById(Long supplierId) {
         return supplierRepository.findById(supplierId)
@@ -190,5 +174,10 @@ public class SupplierService {
 
     public SupplierResponse getSupplier(Long supplierId) {
         return supplierMapper.toSupplierDto(getSupplierById(supplierId));
+    }
+
+    public Page<SupplierResponse> getAllUsers(Pageable pageable) {
+        return supplierRepository.findAll(pageable)
+                .map(supplierMapper::toSupplierDto);
     }
 }

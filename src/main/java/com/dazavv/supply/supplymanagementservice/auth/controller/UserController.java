@@ -24,7 +24,7 @@ public class UserController {
         return ResponseEntity.ok("User with id=: " + request.id() + " has new role: " + request.role());
     }
 
-    @GetMapping("/users")
+    @GetMapping()
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<Page<UserResponse>> getAllUsers(
             @RequestParam(defaultValue = "0") int page,

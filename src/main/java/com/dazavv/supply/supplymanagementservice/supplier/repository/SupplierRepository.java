@@ -1,5 +1,6 @@
 package com.dazavv.supply.supplymanagementservice.supplier.repository;
 
+import com.dazavv.supply.supplymanagementservice.auth.entity.User;
 import com.dazavv.supply.supplymanagementservice.supplier.entity.SupplierEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -10,8 +11,7 @@ import java.util.Optional;
 public interface SupplierRepository extends JpaRepository<SupplierEntity, Long> {
     boolean existsByCode(String code);
 
-    boolean existsByEmailOrPhoneNumber(String email, String phoneNumber);
-
+    boolean existsByUserId(Long id);
     boolean existsByEmail(String email);
 
     boolean existsByPhoneNumber(String phoneNumber);
@@ -20,5 +20,6 @@ public interface SupplierRepository extends JpaRepository<SupplierEntity, Long> 
 
     boolean existsByPhoneNumberAndIdNot(String phoneNumber, Long supplierId);
 
-    SupplierEntity findByAuthUserId(Long id);
+    Optional<SupplierEntity> findByUserId(Long userId);
+    Optional<SupplierEntity> findByCode(String supplierCode);
 }

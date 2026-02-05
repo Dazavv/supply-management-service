@@ -1,7 +1,7 @@
 package com.dazavv.supply.supplymanagementservice.product.controller;
 
-import com.dazavv.supply.supplymanagementservice.auth.entity.AuthUser;
-import com.dazavv.supply.supplymanagementservice.auth.service.AuthUserService;
+import com.dazavv.supply.supplymanagementservice.auth.entity.User;
+import com.dazavv.supply.supplymanagementservice.auth.service.UserService;
 import com.dazavv.supply.supplymanagementservice.product.dto.requests.CreateProductRequest;
 import com.dazavv.supply.supplymanagementservice.product.dto.requests.UpdateProductRequest;
 import com.dazavv.supply.supplymanagementservice.product.dto.responses.ProductResponse;
@@ -22,13 +22,13 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ProductController {
     private final ProductService productService;
-    private final AuthUserService authUserService;
+    private final UserService userService;
 
     @PostMapping
     @PreAuthorize("hasAuthority('SUPPLIER')")
     public ResponseEntity<ProductResponse> createProduct(@Valid @RequestBody CreateProductRequest request,
                                                          Authentication authentication) {
-        AuthUser currentUser = authUserService.getByLogin(authentication.getName());
+        User currentUser = userService.getByLogin(authentication.getName());
         ProductResponse product = productService.createProduct(
                 currentUser,
                 request.name(),
@@ -45,7 +45,7 @@ public class ProductController {
     @PreAuthorize("hasAuthority('SUPPLIER')")
     public ResponseEntity<ProductResponse> updateProduct(@Valid @RequestBody UpdateProductRequest request,
                                                          Authentication authentication) {
-        AuthUser currentUser = authUserService.getByLogin(authentication.getName());
+        User currentUser = userService.getByLogin(authentication.getName());
         ProductResponse product = productService.updateProduct(
                 currentUser,
                 request.productId(),
@@ -58,11 +58,11 @@ public class ProductController {
                 .body(product);
     }
 
-    @DeleteMapping("/{productId}")
+    @DeleteMapping("/delete/{productId}")
     @PreAuthorize("hasAuthority('SUPPLIER')")
     public ResponseEntity<Void> deleteProduct(@PathVariable @Min(1) Long productId,
                                               Authentication authentication) {
-        AuthUser currentUser = authUserService.getByLogin(authentication.getName());
+        User currentUser = userService.getByLogin(authentication.getName());
 
         productService.deleteProduct(currentUser, productId);
         return ResponseEntity.noContent().build();
@@ -79,7 +79,7 @@ public class ProductController {
     @GetMapping("/supplier/me")
     @PreAuthorize("hasAuthority('SUPPLIER')")
     public ResponseEntity<List<ProductResponse>> getMyProducts(Authentication authentication) {
-        AuthUser currentUser = authUserService.getByLogin(authentication.getName());
+        User currentUser = userService.getByLogin(authentication.getName());
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(productService.getProductsBySupplier(currentUser));
@@ -89,18 +89,18 @@ public class ProductController {
     @PreAuthorize("hasAuthority('SUPPLIER')")
     public ResponseEntity<ProductResponse> getMyProductById(@PathVariable @Min(1) Long productId,
                                                                   Authentication authentication) {
-        AuthUser currentUser = authUserService.getByLogin(authentication.getName());
+        User currentUser = userService.getByLogin(authentication.getName());
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(productService.getProductById(currentUser, productId));
+                .body(productService.getProduct(currentUser, productId));
     }
 
-    @GetMapping("/admin/supplier/{productId}")
+    @GetMapping("/admin/{productId}")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<ProductResponse> getMyProductById(@PathVariable @Min(1) Long productId) {
+    public ResponseEntity<ProductResponse> geProductById(@PathVariable @Min(1) Long productId) {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(productService.getProductById(productId));
+                .body(productService.getProduct(productId));
     }
 
 }

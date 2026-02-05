@@ -5,7 +5,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 public record UpdateSupplierRequest (
-        @NotNull Long supplierId,
+        @NotNull
+        Long supplierId,
 
         @Size(max = 30)
         String companyName,

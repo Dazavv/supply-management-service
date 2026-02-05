@@ -1,6 +1,6 @@
 package com.dazavv.supply.supplymanagementservice.supplier.entity;
 
-import com.dazavv.supply.supplymanagementservice.auth.entity.AuthUser;
+import com.dazavv.supply.supplymanagementservice.auth.entity.User;
 import com.dazavv.supply.supplymanagementservice.delivery.entity.DeliveryEntity;
 import com.dazavv.supply.supplymanagementservice.product.entity.ProductEntity;
 import jakarta.persistence.*;
@@ -42,7 +42,7 @@ public class SupplierEntity {
 
     @OneToOne
     @JoinColumn(name = "auth_user_id")
-    private AuthUser authUser;
+    private User user;
 
     @OneToMany(mappedBy = "supplier")
     private List<ProductEntity> products;
