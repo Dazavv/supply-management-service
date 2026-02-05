@@ -1,8 +1,8 @@
 package com.dazavv.supply.supplymanagementservice.auth.utils;
 
-import com.dazavv.supply.supplymanagementservice.auth.entity.AuthUser;
+import com.dazavv.supply.supplymanagementservice.auth.entity.User;
 import com.dazavv.supply.supplymanagementservice.auth.enums.Role;
-import com.dazavv.supply.supplymanagementservice.auth.repository.AuthUserRepository;
+import com.dazavv.supply.supplymanagementservice.auth.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
@@ -14,40 +14,48 @@ import java.util.Collections;
 @Component
 @RequiredArgsConstructor
 public class DataInitializer implements CommandLineRunner {
-    private final AuthUserRepository userRepository;
+
+    private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    @Value("${admin.login:admin}")
-    private String adminLogin;
+    @Value("${users.logins}")
+    private String[] logins;
 
-    @Value("${admin.password:admin}")
-    private String adminPassword;
+    @Value("${users.passwords}")
+    private String[] passwords;
 
-    @Value("${admin.name:admin}")
-    private String adminName;
+    @Value("${users.names}")
+    private String[] names;
 
-    @Value("${admin.surname:admin}")
-    private String adminSurname;
+    @Value("${users.surnames}")
+    private String[] surnames;
 
-    @Value("${admin.email:admin}")
-    private String adminEmail;
+    @Value("${users.emails}")
+    private String[] emails;
 
-    @Value("${admin.phoneNumber:admin}")
-    private String phoneNumber;
+    @Value("${users.phones}")
+    private String[] phones;
+
+    @Value("${users.roles}")
+    private String[] roles;
 
     @Override
     public void run(String... args) {
-        if (userRepository.findByLogin(adminLogin).isEmpty()) {
-            AuthUser admin = new AuthUser();
-            admin.setLogin(adminLogin);
-            admin.setPassword(passwordEncoder.encode(adminPassword));
-            admin.setName(adminName);
-            admin.setSurname(adminSurname);
-            admin.setEmail(adminEmail);
-            admin.setPhoneNumber(phoneNumber);
-            admin.setRoles(Collections.singleton(Role.ADMIN));
-            userRepository.save(admin);
-            System.out.println("Admin user created");
+
+        for (int i = 0; i < logins.length; i++) {
+            String login = logins[i];
+            if (userRepository.findByLogin(login).isEmpty()) {
+                User user = new User();
+                user.setLogin(login);
+                user.setPassword(passwordEncoder.encode(passwords[i]));
+                user.setName(names[i]);
+                user.setSurname(surnames[i]);
+                user.setEmail(emails[i]);
+                user.setPhoneNumber(phones[i]);
+                user.setRoles(Collections.singleton(Role.valueOf(roles[i])));
+                userRepository.save(user);
+                System.out.println("user created: " + login);
+            }
         }
     }
 }

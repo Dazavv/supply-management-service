@@ -1,15 +1,14 @@
 package com.dazavv.supply.supplymanagementservice.auth.controller;
 
-import com.dazavv.supply.supplymanagementservice.auth.dto.*;
+import com.dazavv.supply.supplymanagementservice.auth.dto.request.LoginRequest;
+import com.dazavv.supply.supplymanagementservice.auth.dto.request.RefreshJwtRequest;
+import com.dazavv.supply.supplymanagementservice.auth.dto.request.RegisterRequest;
+import com.dazavv.supply.supplymanagementservice.auth.dto.response.JwtResponse;
 import com.dazavv.supply.supplymanagementservice.auth.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("api/v1/auth")
@@ -56,12 +55,4 @@ public class AuthController {
         authService.logout(request.getRefreshToken());
         return ResponseEntity.noContent().build();
     }
-
-    @PostMapping("/roles")
-    @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<String> addRoleToUser(@Valid @RequestBody AddRoleToUserRequest request) {
-        authService.addRoleToUser(request.getLogin(), request.getRole());
-        return ResponseEntity.ok("User with login: " + request.getLogin() + " has new role: " + request.getRole());
-    }
-    //TODO add delete method
 }

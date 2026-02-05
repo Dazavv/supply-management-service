@@ -14,8 +14,8 @@ import java.util.Set;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "auth_users")
-public class AuthUser {
+@Table(name = "users")
+public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,7 +26,6 @@ public class AuthUser {
     private String login;
 
     @NotBlank
-    @Size(min = 10, max = 20)
     private String password;
 
     @NotBlank

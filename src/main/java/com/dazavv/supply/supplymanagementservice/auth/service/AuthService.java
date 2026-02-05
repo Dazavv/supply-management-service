@@ -1,12 +1,13 @@
 package com.dazavv.supply.supplymanagementservice.auth.service;
 
-import com.dazavv.supply.supplymanagementservice.auth.dto.JwtResponse;
-import com.dazavv.supply.supplymanagementservice.auth.entity.AuthUser;
+import com.dazavv.supply.supplymanagementservice.auth.dto.response.JwtResponse;
+import com.dazavv.supply.supplymanagementservice.auth.entity.User;
 import com.dazavv.supply.supplymanagementservice.auth.enums.Role;
 import com.dazavv.supply.supplymanagementservice.auth.exception.AuthException;
 import com.dazavv.supply.supplymanagementservice.auth.jwt.JwtAuthentication;
 import com.dazavv.supply.supplymanagementservice.auth.jwt.JwtProvider;
 import com.dazavv.supply.supplymanagementservice.supplier.service.SupplierService;
+import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,7 +20,7 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 public class AuthService {
-    private final AuthUserService authUserService;
+    private final UserService userService;
     private final SupplierService supplierService;
 
     private final Map<String, String> refreshStorage = new HashMap<>();
@@ -27,7 +28,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
 
     public JwtResponse login(String login, String password) {
-        final AuthUser user = authUserService.getByLogin(login);
+        final User user = userService.getByLogin(login);
         if (passwordEncoder.matches(password, user.getPassword())) {
             final String accessToken = jwtProvider.generateAccessToken(user);
             final String refreshToken = jwtProvider.generateRefreshToken(user);
@@ -40,10 +41,10 @@ public class AuthService {
 
     public JwtResponse register(String login, String password, String name, String surname, String email, String phoneNumber) {
 
-        authUserService.validateUserUniqueness(login, email, phoneNumber);
+        userService.validateUserUniqueness(login, email, phoneNumber);
         supplierService.validateSupplierUniqueness(email, phoneNumber);
 
-        AuthUser user = new AuthUser();
+        User user = new User();
         user.setLogin(login);
         user.setPassword(passwordEncoder.encode(password));
         user.setName(name);
@@ -52,7 +53,7 @@ public class AuthService {
         user.setPhoneNumber(phoneNumber);
         user.setRoles(Collections.singleton(Role.VIEWER));
 
-        authUserService.save(user);
+        userService.save(user);
 
         final String accessToken = jwtProvider.generateAccessToken(user);
         final String refreshToken = jwtProvider.generateRefreshToken(user);
@@ -79,7 +80,7 @@ public class AuthService {
             final String login = claims.getSubject();
             final String saveRefreshToken = refreshStorage.get(login);
             if (saveRefreshToken != null && saveRefreshToken.equals(refreshToken)) {
-                final AuthUser user = getUser(login);
+                final User user = userService.getByLogin(login);
                 final String accessToken = jwtProvider.generateAccessToken(user);
                 return new JwtResponse(accessToken, null);
             }
@@ -93,7 +94,7 @@ public class AuthService {
             final String login = claims.getSubject();
             final String saveRefreshToken = refreshStorage.get(login);
             if (saveRefreshToken != null && saveRefreshToken.equals(refreshToken)) {
-                final AuthUser user = getUser(login);
+                final User user = userService.getByLogin(login);
                 final String accessToken = jwtProvider.generateAccessToken(user);
                 final String newRefreshToken = jwtProvider.generateRefreshToken(user);
                 refreshStorage.put(user.getLogin(), newRefreshToken);
@@ -102,12 +103,11 @@ public class AuthService {
         }
         throw new AuthException("JWT was not valid");
     }
-    public void addRoleToUser(String login, Role role) {
-        final AuthUser user = authUserService.getByLogin(login);
-        authUserService.addNewRole(user.getId(), role);
-    }
-
     public JwtAuthentication getAuthInfo() {
         return (JwtAuthentication) SecurityContextHolder.getContext().getAuthentication();
+    }
+
+    public void deleteUserById(Long id) {
+        userService.deleteUserById(id);
     }
 }

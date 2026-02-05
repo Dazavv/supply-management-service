@@ -1,4 +1,4 @@
-package com.dazavv.supply.supplymanagementservice.auth.dto;
+package com.dazavv.supply.supplymanagementservice.auth.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

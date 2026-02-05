@@ -1,4 +1,4 @@
-package com.dazavv.supply.supplymanagementservice.auth.dto;
+package com.dazavv.supply.supplymanagementservice.auth.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;

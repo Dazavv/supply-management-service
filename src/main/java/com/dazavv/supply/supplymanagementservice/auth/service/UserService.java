@@ -1,54 +1,59 @@
 package com.dazavv.supply.supplymanagementservice.auth.service;
 
-import com.dazavv.supply.supplymanagementservice.auth.entity.AuthUser;
+import com.dazavv.supply.supplymanagementservice.auth.dto.response.UserResponse;
+import com.dazavv.supply.supplymanagementservice.auth.entity.User;
 import com.dazavv.supply.supplymanagementservice.auth.enums.Role;
-import com.dazavv.supply.supplymanagementservice.auth.repository.AuthUserRepository;
+import com.dazavv.supply.supplymanagementservice.auth.mapper.UserMapper;
+import com.dazavv.supply.supplymanagementservice.auth.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class AuthUserService {
-    private final AuthUserRepository authUserRepository;
+public class UserService {
+    private final UserRepository userRepository;
+    private final UserMapper userMapper;
 
-    public AuthUser getByLogin(String login) {
-        return authUserRepository.findByLogin(login)
+    public User getByLogin(String login) {
+        return userRepository.findByLogin(login)
                 .orElseThrow(() ->
                         new EntityNotFoundException("User not found with login: " + login));
     }
 
-    public AuthUser getUserById(Long id) {
-        return authUserRepository.findById(id)
+    public User getUserById(Long id) {
+        return userRepository.findById(id)
                 .orElseThrow(() ->
                         new EntityNotFoundException("User not found with id: " + id));
     }
 
     public void checkExistedUserByEmailAndPhoneNumber(String email, String phoneNumber) {
-        if (authUserRepository.existsByEmail(email)) {
+        if (userRepository.existsByEmail(email)) {
             throw new IllegalArgumentException("User with email already exists");
         }
 
-        if (authUserRepository.existsByPhoneNumber(phoneNumber)) {
+        if (userRepository.existsByPhoneNumber(phoneNumber)) {
             throw new IllegalArgumentException("User with phone number already exists");
         }
     }
     public boolean checkExistedUserByEmail(String email) {
-        if (authUserRepository.existsByEmail(email)) {
+        if (userRepository.existsByEmail(email)) {
             throw new IllegalArgumentException("User with email already exists");
         }
         return true;
     }
 
     public boolean checkExistedUserPhoneNumber(String phoneNumber) {
-        if (authUserRepository.existsByPhoneNumber(phoneNumber)) {
+        if (userRepository.existsByPhoneNumber(phoneNumber)) {
             throw new IllegalArgumentException("User with phone number already exists");
         }
         return false;
     }
 
     public void checkExistedUserByLogin(String login) {
-        if (authUserRepository.existsByLogin(login)) {
+        if (userRepository.existsByLogin(login)) {
             throw new IllegalArgumentException("User with login" + login + "already exists");
         }
     }
@@ -58,15 +63,24 @@ public class AuthUserService {
         checkExistedUserByEmailAndPhoneNumber(email, phoneNumber);
     }
 
-    public void save(AuthUser user) {
-        authUserRepository.save(user);
+    public void save(User user) {
+        userRepository.save(user);
     }
 
     public void addNewRole(Long userId, Role role) {
-        AuthUser user = getUserById(userId);
+        User user = getUserById(userId);
 
         user.getRoles().add(role);
 
-        authUserRepository.save(user);
+        userRepository.save(user);
+    }
+
+    public void deleteUserById(Long id) {
+        userRepository.delete(getUserById(id));
+    }
+
+    public Page<UserResponse> getAllUsers(Pageable pageable) {
+        return userRepository.findAll(pageable)
+                .map(userMapper::toUserDto);
     }
 }

@@ -1,6 +1,6 @@
 package com.dazavv.supply.supplymanagementservice.auth.jwt;
 
-import com.dazavv.supply.supplymanagementservice.auth.entity.AuthUser;
+import com.dazavv.supply.supplymanagementservice.auth.entity.User;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,7 +30,7 @@ public class JwtProvider {
         this.jwtRefreshSecretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtRefreshSecretKey));
     }
 
-    public String generateAccessToken(@NonNull AuthUser user) {
+    public String generateAccessToken(@NonNull User user) {
         final LocalDateTime now = LocalDateTime.now();
         final Instant accessExpirationInstant = now.plusMinutes(15).atZone(ZoneId.systemDefault()).toInstant();
         final Date accessExpiration = Date.from(accessExpirationInstant);
@@ -45,7 +45,7 @@ public class JwtProvider {
                 .compact();
     }
 
-    public String generateRefreshToken(@NonNull AuthUser user) {
+    public String generateRefreshToken(@NonNull User user) {
         final LocalDateTime now = LocalDateTime.now();
         final Instant refreshExpirationInstant = now.plusDays(7).atZone(ZoneId.systemDefault()).toInstant();
         final Date refreshExpiration = Date.from(refreshExpirationInstant);
