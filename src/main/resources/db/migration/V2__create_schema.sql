@@ -5,7 +5,12 @@ CREATE TABLE IF NOT EXISTS suppliers (
                            phone_number VARCHAR(12) NOT NULL,
                            email VARCHAR(30),
                            created_at TIMESTAMP,
-                           updated_at TIMESTAMP
+                           updated_at TIMESTAMP,
+                           auth_user_id BIGINT NOT NULL,
+
+                            CONSTRAINT fk_suppliers_auth_user
+                                FOREIGN KEY (auth_user_id)
+                                    REFERENCES users(id)
 );
 
 CREATE TABLE IF NOT EXISTS products (
@@ -14,7 +19,8 @@ CREATE TABLE IF NOT EXISTS products (
                           type VARCHAR(30) NOT NULL,
                           price NUMERIC(10,2) NOT NULL,
                           supplier_id BIGINT NOT NULL,
-
+                          created_at TIMESTAMP,
+                          updated_at TIMESTAMP,
                           CONSTRAINT fk_product_supplier
                               FOREIGN KEY (supplier_id)
                                   REFERENCES suppliers(id)
@@ -27,6 +33,7 @@ CREATE TABLE IF NOT EXISTS delivery (
                           status VARCHAR(20),
                           total_amount NUMERIC(12,2),
                           comment VARCHAR(255),
+                          delivery_address VARCHAR(255),
 
                           CONSTRAINT fk_delivery_supplier
                               FOREIGN KEY (supplier_id)
