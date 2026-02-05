@@ -127,6 +127,7 @@ public class SupplierService {
         return supplierMapper.toSupplierDto(supplier);
     }
 
+    @Transactional
     public void deleteSupplierById(Long id) {
         if (!supplierRepository.existsById(id)) {
             throw new SupplierNotFoundException("Supplier with id = " + id + " not found");
