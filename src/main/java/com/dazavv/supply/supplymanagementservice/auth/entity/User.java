@@ -23,32 +23,39 @@ public class User {
 
     @NotBlank
     @Size(max = 20)
+    @Column(name = "login", nullable = false, unique = true, length = 20)
     private String login;
 
     @NotBlank
+    @Column(name = "password", nullable = false, length = 255)
     private String password;
 
     @NotBlank
     @Size(max = 20)
+    @Column(name = "name", nullable = false, length = 20)
     private String name;
 
     @NotBlank
     @Size(max = 30)
+    @Column(name = "surname", nullable = false, length = 30)
     private String surname;
 
     @NotBlank
     @Size(max = 30)
-    @Column(name = "email", nullable = false)
+    @Column(name = "email", nullable = false, unique = true, length = 30)
     private String email;
 
     @NotBlank
     @Size(max = 12)
-    @Column(name = "phone_number", nullable = false)
+    @Column(name = "phone_number", nullable = false, unique = true, length = 12)
     private String phoneNumber;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
-    @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
-    @Column(name = "role")
+    @CollectionTable(
+            name = "user_roles",
+            joinColumns = @JoinColumn(name = "user_id", nullable = false)
+    )
+    @Column(name = "role", nullable = false, length = 20)
     private Set<Role> roles;
 }
