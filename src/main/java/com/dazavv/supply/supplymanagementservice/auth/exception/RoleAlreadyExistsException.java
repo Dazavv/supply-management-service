@@ -1,6 +1,8 @@
 package com.dazavv.supply.supplymanagementservice.auth.exception;
 
-public class RoleAlreadyExistsException extends RuntimeException {
+import com.dazavv.supply.supplymanagementservice.common.exception.BusinessException;
+
+public class RoleAlreadyExistsException extends BusinessException {
     public RoleAlreadyExistsException(String message) {
         super(message);
     }

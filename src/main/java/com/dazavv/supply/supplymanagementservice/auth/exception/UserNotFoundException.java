@@ -1,6 +1,8 @@
 package com.dazavv.supply.supplymanagementservice.auth.exception;
 
-public class UserNotFoundException extends RuntimeException {
+import com.dazavv.supply.supplymanagementservice.common.exception.BusinessException;
+
+public class UserNotFoundException extends BusinessException {
     public UserNotFoundException(String s) {
         super(s);
     }
