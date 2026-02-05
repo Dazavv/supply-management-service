@@ -3,9 +3,13 @@ package com.dazavv.supply.supplymanagementservice.auth.service;
 import com.dazavv.supply.supplymanagementservice.auth.dto.response.UserResponse;
 import com.dazavv.supply.supplymanagementservice.auth.entity.User;
 import com.dazavv.supply.supplymanagementservice.auth.enums.Role;
+import com.dazavv.supply.supplymanagementservice.auth.exception.RoleAlreadyExistsException;
+import com.dazavv.supply.supplymanagementservice.auth.exception.UserAlreadyExistsException;
+import com.dazavv.supply.supplymanagementservice.auth.exception.UserLinkedToSupplierException;
+import com.dazavv.supply.supplymanagementservice.auth.exception.UserNotFoundException;
 import com.dazavv.supply.supplymanagementservice.auth.mapper.UserMapper;
 import com.dazavv.supply.supplymanagementservice.auth.repository.UserRepository;
-import jakarta.persistence.EntityNotFoundException;
+import com.dazavv.supply.supplymanagementservice.supplier.repository.SupplierRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,52 +19,45 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
+    private final SupplierRepository supplierRepository;
     private final UserMapper userMapper;
 
     public User getByLogin(String login) {
         return userRepository.findByLogin(login)
                 .orElseThrow(() ->
-                        new EntityNotFoundException("User not found with login: " + login));
+                        new UserNotFoundException("User not found with login: " + login));
     }
 
     public User getUserById(Long id) {
         return userRepository.findById(id)
                 .orElseThrow(() ->
-                        new EntityNotFoundException("User not found with id: " + id));
+                        new UserNotFoundException("User not found with id: " + id));
     }
 
-    public void checkExistedUserByEmailAndPhoneNumber(String email, String phoneNumber) {
+    public boolean checkEmailUniqueness(String email) {
         if (userRepository.existsByEmail(email)) {
-            throw new IllegalArgumentException("User with email already exists");
-        }
-
-        if (userRepository.existsByPhoneNumber(phoneNumber)) {
-            throw new IllegalArgumentException("User with phone number already exists");
-        }
-    }
-    public boolean checkExistedUserByEmail(String email) {
-        if (userRepository.existsByEmail(email)) {
-            throw new IllegalArgumentException("User with email already exists");
+            throw new UserAlreadyExistsException("User with email already exists");
         }
         return true;
     }
 
-    public boolean checkExistedUserPhoneNumber(String phoneNumber) {
+    public boolean checkPhoneUniqueness(String phoneNumber) {
         if (userRepository.existsByPhoneNumber(phoneNumber)) {
-            throw new IllegalArgumentException("User with phone number already exists");
+            throw new UserAlreadyExistsException("User with phone number already exists");
         }
         return false;
     }
 
     public void checkExistedUserByLogin(String login) {
         if (userRepository.existsByLogin(login)) {
-            throw new IllegalArgumentException("User with login" + login + "already exists");
+            throw new UserAlreadyExistsException("User with login" + login + "already exists");
         }
     }
 
     public void validateUserUniqueness(String login, String email, String phoneNumber) {
         checkExistedUserByLogin(login);
-        checkExistedUserByEmailAndPhoneNumber(email, phoneNumber);
+        checkEmailUniqueness(email);
+        checkPhoneUniqueness(phoneNumber);
     }
 
     public void save(User user) {
@@ -70,12 +67,19 @@ public class UserService {
     public void addNewRole(Long userId, Role role) {
         User user = getUserById(userId);
 
-        user.getRoles().add(role);
+        if (user.getRoles().contains(role)) {
+            throw new RoleAlreadyExistsException("Role already exists");
+        }
 
+        user.getRoles().add(role);
         userRepository.save(user);
     }
 
     public void deleteUserById(Long id) {
+        if (supplierRepository.existsByUserId(id)) {
+            throw new UserLinkedToSupplierException("Cannot delete user, he is linked to suppliers");
+        }
+
         userRepository.delete(getUserById(id));
     }
 
