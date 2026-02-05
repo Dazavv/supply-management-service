@@ -1,19 +1,23 @@
-package com.dazavv.supply.supplymanagementservice.auth.utils;
+package com.dazavv.supply.supplymanagementservice.common.utils;
 
 import com.dazavv.supply.supplymanagementservice.auth.entity.User;
 import com.dazavv.supply.supplymanagementservice.auth.enums.Role;
 import com.dazavv.supply.supplymanagementservice.auth.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
 
+@Slf4j
 @Component
+@Order(1)
 @RequiredArgsConstructor
-public class DataInitializer implements CommandLineRunner {
+public class UserInitializer implements CommandLineRunner {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -54,7 +58,7 @@ public class DataInitializer implements CommandLineRunner {
                 user.setPhoneNumber(phones[i]);
                 user.setRoles(Collections.singleton(Role.valueOf(roles[i])));
                 userRepository.save(user);
-                System.out.println("user created: " + login);
+                log.info("user created: {}", login);
             }
         }
     }
